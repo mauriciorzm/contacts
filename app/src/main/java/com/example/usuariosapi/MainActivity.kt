@@ -1,9 +1,9 @@
 package com.example.usuariosapi
 
 import android.os.AsyncTask
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import org.json.JSONArray
 import org.json.JSONObject
@@ -14,13 +14,15 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 class MainActivity : AppCompatActivity() {
+    var contacts: ArrayList<Contact> = ArrayList()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        contacts = ArrayList<Contact>()
     }
 
-    fun getUserById(view: View){//view->nombre View->clase(int, string...)
-        //var userId=GetUserId.text.toString()//var is mutable
+    fun getContacts(view: View){ //view->nombre View->clase(int, string...)
         //val url="https://localhost:44391/api/contacts"//val is static
         val url="http://192.168.1.67:99/api/contacts"//val is static
         MyAsyncTask().execute(url)
@@ -39,17 +41,28 @@ class MainActivity : AppCompatActivity() {
             } catch (ex:Exception){
                 print(ex)
             }
+
             return " "
         }
         override fun onProgressUpdate(vararg  values: String?){
             try {
-                var array = JSONArray(values[0])
-                val data = array.getJSONObject("")
-                val Id=data.get("Id").toString()
-                val Name = data.get("Name").toString()
-                val LastName=data.get("LastName").toString()
-                var userInfo = Id+ " "+ Name + " " + LastName
-                tvUserInfo.text=userInfo
+                var array: JSONArray = JSONArray(values[0])
+
+                contacts = ArrayList<Contact>()
+
+                for (i in 0 until array.length()) {
+                    val contact: JSONObject = array.getJSONObject(i)
+                    val id = contact.getString("Id")
+                    val name = contact.getString("Name")
+                    val lastName = contact.getString("LastName")
+                    val address = contact.getString("Address")
+                    val phone = contact.getString("Phone")
+
+                    contacts.add(Contact(id, name, lastName, address, phone))
+                }
+
+                print(array)
+                print(contacts)
             } catch (ex:Exception){
                 println(ex)
             }
